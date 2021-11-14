@@ -68,12 +68,12 @@ void comm_uart_send_packet(unsigned char *data, unsigned int len) {
 }
 
 void checkUART_rx_Buffer(uint8_t UART_HANDLE){
-	static uint8_t last_pointer_position;
+	static uint8_t last_pointer_position=64;
 	static uint8_t recent_pointer_position;
 	recent_pointer_position = DMA1_Channel3->CNDTR;
-	if(last_pointer_position != recent_pointer_position){
-		packet_process_byte(ui8_rx_buffer[recent_pointer_position], UART_HANDLE);
-		last_pointer_position = recent_pointer_position;
+	while(last_pointer_position != recent_pointer_position){
+		packet_process_byte(ui8_rx_buffer[last_pointer_position], UART_HANDLE);
+		last_pointer_position=(last_pointer_position+1) % sizeof(ui8_rx_buffer);;
 	}
 
 }
