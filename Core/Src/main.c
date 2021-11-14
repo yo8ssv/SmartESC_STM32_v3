@@ -27,8 +27,11 @@
 #include "FOC.h"
 #include "config.h"
 #include "eeprom.h"
+#include "VescDatatypes.h"
+#include "packet.h"
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_EBiCS ||DISPLAY_TYPE == DISPLAY_TYPE_DEBUG)
+
+#if (DISPLAY_TYPE == DISPLAY_TYPE_EBiCS ||DISPLAY_TYPE == DISPLAY_TYPE_DEBUG ||DISPLAY_TYPE == DISPLAY_TYPE_VESC_TOOL)
 #include "display_ebics.h"
 #endif
 
@@ -196,6 +199,7 @@ q31_t q31_tics_filtered = 128000;
 
 MotorState_t MS;
 MotorParams_t MP;
+mc_configuration mc_conf;
 
 int16_t battery_percent_fromcapacity = 50; //Calculation of used watthours not implemented yet
 int16_t wheel_time = 1000;//duration of one wheel rotation for speed calculation
@@ -206,6 +210,7 @@ int16_t power;
 static void dyn_adc_state(q31_t angle);
 static void set_inj_channel(char state);
 void get_standstill_position();
+uint16_t get_bus_voltage();
 void runPIcontrol();
 int32_t map(int32_t x, int32_t in_min, int32_t in_max, int32_t out_min,
 		int32_t out_max);
@@ -223,6 +228,7 @@ q31_t speed_PLL (q31_t ist, q31_t soll);
 #define ADC_CHANA 3
 #define ADC_CHANB 4
 #define ADC_CHANC 5
+#define UART_HANDLE 0
 
 void autodetect() {
 	SET_BIT(TIM1->BDTR, TIM_BDTR_MOE);
@@ -447,9 +453,13 @@ int main(void) {
 		Error_Handler();
 	}
 
-#if (DISPLAY_TYPE == DISPLAY_TYPE_EBiCS || DISPLAY_TYPE == DISPLAY_TYPE_DEBUG)
+#if (DISPLAY_TYPE == DISPLAY_TYPE_EBiCS || DISPLAY_TYPE == DISPLAY_TYPE_DEBUG||DISPLAY_TYPE == DISPLAY_TYPE_VESC_TOOL)
 	ebics_init();
 #endif
+#if (DISPLAY_TYPE == DISPLAY_TYPE_VESC_TOOL)
+	packet_init(putbuffer, process_packet, UART_HANDLE);
+#endif
+
 
 	TIM1->CCR1 = 1023; //set initial PWM values
 	TIM1->CCR2 = 1023;
@@ -513,6 +523,11 @@ int main(void) {
 		//display message processing
 #if (DISPLAY_TYPE == DISPLAY_TYPE_EBiCS || DISPLAY_TYPE == DISPLAY_TYPE_DEBUG)
 		process_ant_page(&MS, &MP);
+
+#endif
+
+#if (DISPLAY_TYPE == DISPLAY_TYPE_VESC_TOOL)
+		checkUART_rx_Buffer(UART_HANDLE);
 
 #endif
 
@@ -649,6 +664,10 @@ int main(void) {
 
 }
 
+
+
+//________________________________________________________________________________________________________________
+//Hardware initialisation from CubeMX
 /**
  * @brief System Clock Configuration
  * @retval None
@@ -1030,7 +1049,7 @@ static void MX_USART3_UART_Init(void) {
 
 	huart3.Instance = USART3;
 
-	huart3.Init.BaudRate = 56000;
+	huart3.Init.BaudRate = 115200;
 
 	huart3.Init.WordLength = UART_WORDLENGTH_8B;
 	huart3.Init.StopBits = UART_STOPBITS_1;
@@ -1627,7 +1646,10 @@ int32_t speed_to_tics(uint8_t speed) {
 }
 
 int8_t tics_to_speed(uint32_t tics) {
-	return WHEEL_CIRCUMFERENCE * 5 * 3600 / (6 * GEAR_RATIO * tics * 10);;
+	return WHEEL_CIRCUMFERENCE * 5 * 3600 / (6 * GEAR_RATIO * tics * 10);
+}
+uint16_t get_bus_voltage(){
+	return MS.Voltage*CAL_BAT_V;
 }
 
 q31_t speed_PLL (q31_t ist, q31_t soll)

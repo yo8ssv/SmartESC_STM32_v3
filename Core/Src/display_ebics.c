@@ -9,12 +9,21 @@
 #include "config.h"
 #include "stm32f1xx_hal.h"
 #include "print.h"
+#include "packet.h"
+#include "VescCommand.h"
 
 UART_HandleTypeDef huart3;
 uint8_t ui8_rx_buffer[64];
 uint8_t ui8_tx_buffer[12];
 
+
+
 enum { STATE_LOST, STATE_PAYLOAD };
+void comm_uart_send_packet(unsigned char *data, unsigned int len);
+void putbuffer(unsigned char *buf, unsigned int len);
+void comm_uart_send_packet(unsigned char *data, unsigned int len);
+void checkUART_rx_Buffer(uint8_t UART_HANDLE);
+
 
 
 static int tail=0;
@@ -29,6 +38,8 @@ void ebics_init() {
 	if (HAL_UART_Receive_DMA(&huart3, (uint8_t*) ui8_rx_buffer, sizeof(ui8_rx_buffer)) != HAL_OK) {
 		Error_Handler();
 	}
+
+
 }
 
 void ebics_reset() {
@@ -38,6 +49,34 @@ void ebics_reset() {
         tail=0;
 }
 
+
+
+//_______________________________________________________________________________________________________________
+// UART functions for VESC-Tool
+void putbuffer(unsigned char *buf, unsigned int len){
+	HAL_UART_Transmit_DMA(&huart3, (uint8_t *)&buf, len);
+}
+
+void process_packet(unsigned char *data, unsigned int len){
+
+	commands_process_packet(data, len, &comm_uart_send_packet);
+
+}
+
+void comm_uart_send_packet(unsigned char *data, unsigned int len) {
+	packet_send_packet(data, len, 0); //UART_HANDLE
+}
+
+void checkUART_rx_Buffer(uint8_t UART_HANDLE){
+	static uint8_t last_pointer_position;
+	static uint8_t recent_pointer_position;
+	recent_pointer_position = DMA1_Channel3->CNDTR;
+	if(last_pointer_position != recent_pointer_position){
+		packet_process_byte(ui8_rx_buffer[recent_pointer_position], UART_HANDLE);
+		last_pointer_position = recent_pointer_position;
+	}
+
+}
 
 void process_ant_page_one(uint8_t *ui8_pkt, MotorState_t *MS, MotorParams_t *MP){
 	switch (ui8_pkt[3]) {

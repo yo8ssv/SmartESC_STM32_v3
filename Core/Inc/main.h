@@ -33,6 +33,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <arm_math.h>
+#include "VescDatatypes.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -90,6 +91,7 @@ void Error_Handler(void);
 #define HALL_1_GPIO_Port GPIOB
 #define HALL_2_Pin GPIO_PIN_5
 #define HALL_2_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 #define PUSHASSIST_CURRENT 30
@@ -100,10 +102,12 @@ int32_t map(int32_t x, int32_t in_min, int32_t in_max, int32_t out_min,
 
 void autodetect();
 void runPIcontrol();
+uint16_t get_bus_voltage();
 
 extern q31_t switchtime[3];
 extern uint32_t ui32_tim1_counter;
 extern uint32_t uint32_PAS_counter;
+extern mc_configuration mc_conf;
 
 typedef struct {
 
