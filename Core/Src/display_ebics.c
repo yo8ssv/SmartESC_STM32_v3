@@ -54,7 +54,7 @@ void ebics_reset() {
 //_______________________________________________________________________________________________________________
 // UART functions for VESC-Tool
 void putbuffer(unsigned char *buf, unsigned int len){
-	HAL_UART_Transmit_DMA(&huart3, (uint8_t *)&buf, len);
+	HAL_UART_Transmit_DMA(&huart3, (uint8_t *)buf, len);
 }
 
 void process_packet(unsigned char *data, unsigned int len){
