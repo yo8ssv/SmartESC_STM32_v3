@@ -79,7 +79,7 @@ void VescToSTM_enable_timeout(bool enbale){
 
 void VescToSTM_set_torque(int32_t current){
 
-MS.i_q_setpoint=current/mc_conf.l_current_max_scale;
+MS.i_q_setpoint=current/38;
 }
 
 void VescToSTM_set_brake(int32_t current){

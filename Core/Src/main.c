@@ -325,7 +325,7 @@ void autodetect() {
     MS.u_q=0;
     q31_tics_filtered=1000000;
 
-    mc_conf.l_current_max_scale = CAL_I;
+    mc_conf.l_current_max_scale = (CAL_I>>8);
 
 	HAL_FLASH_Unlock();
 	EE_WriteVariable(EEPROM_POS_SPEC_ANGLE,

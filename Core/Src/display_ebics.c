@@ -71,9 +71,9 @@ void checkUART_rx_Buffer(uint8_t UART_HANDLE){
 	static uint8_t last_pointer_position=64;
 	static uint8_t recent_pointer_position;
 	recent_pointer_position = DMA1_Channel3->CNDTR;
-	while(last_pointer_position != recent_pointer_position){
+	while(last_pointer_position != (recent_pointer_position-1)){
 		packet_process_byte(ui8_rx_buffer[last_pointer_position], UART_HANDLE);
-		last_pointer_position=(last_pointer_position+1) % sizeof(ui8_rx_buffer);;
+		last_pointer_position=(last_pointer_position+1) % sizeof(ui8_rx_buffer);
 	}
 
 }

@@ -166,6 +166,8 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 
 	// Avoid calling invalid function pointer if it is null.
 	// commands_send_packet will make the check.
+
+
 	if (!reply_func) {
 		reply_func = commands_send_packet;
 	}
