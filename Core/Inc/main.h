@@ -109,6 +109,7 @@ extern uint32_t ui32_tim1_counter;
 extern uint32_t uint32_PAS_counter;
 extern mc_configuration mc_conf;
 
+
 typedef struct {
 
 	q31_t Voltage;
@@ -152,6 +153,7 @@ typedef struct {
 } MotorParams_t;
 
 void _Error_Handler(char*, int);
+extern MotorState_t MS;
 
 /* USER CODE END Private defines */
 

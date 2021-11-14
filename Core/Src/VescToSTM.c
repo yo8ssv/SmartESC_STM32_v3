@@ -11,7 +11,7 @@
 #include "conf_general.h"
 #include "utils.h"
 #include <string.h>
-//#include "product.h"
+#include "main.h"
 
 static float tacho_scale;
 
@@ -62,52 +62,24 @@ float VescToSTM_get_pid_pos_now(){
 uint32_t last_reset=0;
 bool timeout_enable = true;
 void VescToSTM_timeout_reset(){
-	//last_reset = xTaskGetTickCount();
+	last_reset = HAL_GetTick();
 };
 void VescToSTM_handle_timeout(){
-/*	if(!timeout_enable) {
+	if(!timeout_enable) {
 		VescToSTM_timeout_reset();
 	}
-	if((xTaskGetTickCount() - last_reset) > 2000){
+	if((HAL_GetTick() - last_reset) > 2000){
 		VescToSTM_set_brake(0);
 	}
-	*/
+
 };
 void VescToSTM_enable_timeout(bool enbale){
 	timeout_enable = enbale;
 }
 
 void VescToSTM_set_torque(int32_t current){
-/*	pMCI[M1]->pSTC->SPD->open_loop = false;
-	int32_t q = current_to_torque(current);
-	if(q > SpeednTorqCtrlM1.MaxPositiveTorque){
-		q = SpeednTorqCtrlM1.MaxPositiveTorque;
-	}else if (q < SpeednTorqCtrlM1.MinNegativeTorque){
-		q = SpeednTorqCtrlM1.MinNegativeTorque;
-	}
-	uint16_t Vin = VBS_GetAvBusVoltage_V(pMCT[M1]->pBusVoltageSensor);
-	if(Vin < mc_conf.l_battery_cut_start){
-		float diff = mc_conf.l_battery_cut_start - mc_conf.l_battery_cut_end;
-		float VinDiff = Vin - mc_conf.l_battery_cut_end;
-		float qRed = (float)q / diff * VinDiff;
-		q = qRed;
-	}
-	if(q > 0){
-		pMCI[M1]->pSTC->PISpeed->wUpperIntegralLimit = (uint32_t)q * SP_KDDIV;
-		pMCI[M1]->pSTC->PISpeed->wLowerIntegralLimit = (uint32_t)-q * SP_KDDIV;
-		pMCI[M1]->pSTC->PISpeed->hUpperOutputLimit = q;
-		pMCI[M1]->pSTC->PISpeed->hLowerOutputLimit = mc_conf.s_pid_allow_braking ? -q : 0;
-		MCI_ExecSpeedRamp(pMCI[M1], mc_conf.l_max_erpm / mc_conf.si_motor_poles , 0);
 
-	}else{
-		pMCI[M1]->pSTC->PISpeed->wUpperIntegralLimit = (uint32_t)-q * SP_KDDIV;
-		pMCI[M1]->pSTC->PISpeed->wLowerIntegralLimit = (uint32_t)q * SP_KDDIV;
-		pMCI[M1]->pSTC->PISpeed->hUpperOutputLimit = mc_conf.s_pid_allow_braking ? -q : 0;
-		pMCI[M1]->pSTC->PISpeed->hLowerOutputLimit = q;
-		MCI_ExecSpeedRamp(pMCI[M1], mc_conf.l_min_erpm / mc_conf.si_motor_poles , 0);
-	}
-	*/
-
+MS.i_q_setpoint=current/mc_conf.l_current_max_scale;
 }
 
 void VescToSTM_set_brake(int32_t current){

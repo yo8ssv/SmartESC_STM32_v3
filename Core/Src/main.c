@@ -325,6 +325,8 @@ void autodetect() {
     MS.u_q=0;
     q31_tics_filtered=1000000;
 
+    mc_conf.l_current_max_scale = CAL_I;
+
 	HAL_FLASH_Unlock();
 	EE_WriteVariable(EEPROM_POS_SPEC_ANGLE,
 			q31_rotorposition_motor_specific >> 16);
