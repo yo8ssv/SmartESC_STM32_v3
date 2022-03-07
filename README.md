@@ -1,7 +1,7 @@
 Fork of EBiCS firmware for Lishui devices. Ported to Xaiomi M365 controller. 
 Use JST PA series 2mm pitch for the connectors. (need to be confirmed) 
 
-This branch works with the original M365 dashboard  
+This branch works with the original M365 dashboard with BLE Ver 122 
 
 How to use:  
 Method 1 (github account needed):  
